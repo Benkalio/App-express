@@ -98,7 +98,7 @@ dishRouter.route('/:dishId/comments')
 })
 .post((req, res, next) => {
     Dishes.findById(req.params.dishId)
-    .then((resp) => {
+    .then((dish) => {
         if (dish != null) {
             dish.comments.push(req.body);
             dish.save()
@@ -106,7 +106,7 @@ dishRouter.route('/:dishId/comments')
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
                 res.json(dish);
-            })
+            }, (err) => next(err));
         } 
         else {
             err = new Error('Dish ' + req.params.dishId + ' not found');
@@ -118,7 +118,8 @@ dishRouter.route('/:dishId/comments')
 })
 .put((req, res, next) => {
     res.statusCode = 403;
-    res.end('Put operation not supported on /dishes ' + req.params.dishId + ' /comments');
+    res.end('Put operation not supported on /dishes '
+         + req.params.dishId + ' /comments');
 })
 .delete((req, res, next) => {
     Dishes.findById(req.params.dishId)
@@ -175,10 +176,10 @@ dishRouter.route('/:dishId/comments/:commentId')
     .then((dish) => {
         if (dish != null && dish.comments.id(req.params.commentId) != null) {
             if(req.body.rating) {
-                dish.comments.id(req.params.commentId).rating = req.body.rating
+                dish.comments.id(req.params.commentId).rating = req.body.rating;
             }
             if (req.body.comment) {
-                dish.comments.id(req.params.commentId).rating = req.body.comment
+                dish.comments.id(req.params.commentId).rating = req.body.comment;
             }
             dish.save()
             .then((dish) => {
@@ -199,7 +200,7 @@ dishRouter.route('/:dishId/comments/:commentId')
         }
     }, (err) => next(err))
 })
-.delete((req, res, params) => {
+.delete((req, res, next) => {
     Dishes.findById(req.params.dishId)
     .then((dish) => {
         if (dish != null && dish.comments.id(req.params.commentId) != null) {
@@ -222,7 +223,8 @@ dishRouter.route('/:dishId/comments/:commentId')
             return next(err);
         }
     }, (err) => next(err))
-})
+    .catch((err) => next(err));
+});
 
 module.exports = dishRouter;
 
