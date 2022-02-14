@@ -60,7 +60,7 @@ leaderRouter.route('/:leaderId')
         res.setHeader('Content-Type', 'application/json');
         res.json(leader);
     }, (err) => next(err))
-    .catch(err);
+    .catch((err) => next(err));
 })
 .delete((req, res, params) => {
     Leaders.findByIdAndRemove(req.params.leaderId)
@@ -69,6 +69,6 @@ leaderRouter.route('/:leaderId')
         res.setHeader('Content-Type', 'application/json');
         res.json(resp);
     }, (err) => next(err))
-    .catch(err);
+    .catch((err)=> next(err));
 })
 module.exports = leaderRouter;
