@@ -29,34 +29,51 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('23143-00088-99088-66558'));
 
 function auth(req, res, next) {
-  console.log(req.headers);  
+  console.log(req.signedCookies);
+  
+  if(!req.signedCookies.user) {
+    var authHeader = req.headers.authorization;
 
-  var authHeader = req.headers.authorization;
+    if (!authHeader) {
+      var err = new Error('You need to be authenticated');
 
-  if (!authHeader) {
-    var err = new Error('You need to be authenticated');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    return next(err);
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      return next(err);
+    }
+  
+    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  
+    var username = auth[0];
+    var password = auth[1];
+  
+    if (username === 'admin' && password === 'password') {
+      //COOKIE SETUP
+      res.cookie('user', 'admin', { signed: true })
+      next();
+    } 
+    else {
+      var err = new Error('You need to be authenticated');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      return next(err);
+    }
   }
-
-  var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-
-  var username = auth[0];
-  var password = auth[1];
-
-  if (username === 'admin' && password === 'password') {
-    next();
-  } 
   else {
-    var err = new Error('You need to be authenticated');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    return next(err);
+    if (req.signedCookies.user === 'admin') {
+      next();
+    }
+    else {
+      var err = new Error('You need to be authenticated');
+
+      err.status = 401;
+      return next(err);
+    }
   }
+ 
 }
 
 app.use(auth);
