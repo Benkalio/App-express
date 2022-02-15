@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser')
 
 const Leaders = require('../models/leaders');
+const authenticate = require('../authenticate');
 const leaderRouter = express.Router();
 
 leaderRouter.use(bodyParser.json('dev'));
@@ -16,7 +17,7 @@ leaderRouter.route('/')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     Leaders.create(req.body)
     .then((leader) => {
         res.statusCode = 200;
@@ -25,11 +26,11 @@ leaderRouter.route('/')
     }, (err) => next(err))
     .catch(err);
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end("Red Alert ! Not Allowed");
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
     Leaders.deleteOne({})
     .then((resp) => {
         res.statusCode = 200;
@@ -49,11 +50,11 @@ leaderRouter.route('/:leaderId')
     }, (err) => next(err))
     .catch(err);
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
     res.end('Cannot post leader')
 })
-.put((req, res, params) => {
+.put(authenticate.verifyUser, (req, res, params) => {
     Leaders.findByIdAndUpdate(req.params.leaderId)
     .then((leader) => {
         res.statusCode = 200;
@@ -62,7 +63,7 @@ leaderRouter.route('/:leaderId')
     }, (err) => next(err))
     .catch((err) => next(err));
 })
-.delete((req, res, params) => {
+.delete(authenticate.verifyUser, (req, res, params) => {
     Leaders.findByIdAndRemove(req.params.leaderId)
     .then((resp) => {
         res.statusCode = 200;
