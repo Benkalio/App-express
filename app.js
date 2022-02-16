@@ -14,13 +14,14 @@ var users = require('./routes/users');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var dishRouter = require('./routes/dishRouter');
-var leaderRouter = require('./routes/leaderRouter')
-var promoRouter = require('./routes/promoRouter')
-const mongoose = require('mongoose');
+var leaderRouter = require('./routes/leaderRouter');
+var promoRouter = require('./routes/promoRouter');
+var uploadRouter = require('./routes/uploadRouter');
 
 const Dishes = require("./models/dishes");
 
 const url = config.mongoUrl;
+const mongoose = require('mongoose');
 const connect = mongoose.connect(url);
 
 connect.then((db) => {
@@ -56,7 +57,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/dishes', dishRouter);
 app.use('/leaders', leaderRouter);
-app.use('/promotions', promoRouter)
+app.use('/promotions', promoRouter);
+app.use('/imageUpload', uploadRouter)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
