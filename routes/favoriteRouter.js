@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const authenticate = require('../authenticate')
 const cors = require('./cors');
 const Dishes = require('../models/dishes');
-const Favorites = require('../models/favorite');
+const Favorites = require('../models/favorites');
 
 const favoriteRouter = express.Router();
 
@@ -14,22 +14,23 @@ favoriteRouter.route('/')
 .options(cors.corsWithOptions, (req, res) => {res.sendStatus(200);})
 .get(cors.cors, (req, res, next) => {
     Favorites.find({})
-    .populate('Dishes')
-    .then((favorite) => {
+    .populate('user')
+    .populate('dishes')
+    .then((favorites) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json(favorite);
+        res.json(favorites);
     }, (err) => next(err))
     .catch(err);
 })
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, 
     (req, res, next) => {
         Favorites.create(req.body)
-        .then((favorite) => {
-            console.log('Favorite added!', favorite);
+        .then((favorites) => {
+            console.log('Favorite added!', favorites);
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json');
-            res.json(favorite);
+            res.json(favorites);
         }, (err) => next)
         .catch(err)
     })
@@ -37,7 +38,7 @@ favoriteRouter.route('/')
     Favorites.findByIdAndUpdate(req.params._id, {
         $set: req.body
     }, {new: true})
-    .then((favorite) => {
+    .then((favorites) => {
         if (!_id) return null
         else {
             res.statusCode = 200;
