@@ -17,17 +17,37 @@ favoriteRouter.route('/')
     .populate('user')
     .populate('dishes')
     .then((favorites) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(favorites);
+
+        if(favorites) {
+            user_favorites = favorites.filter(favor => favor.user._id.toString() === 
+                req.user.id.toString())[0];
+                if(!user_favorites) {
+                    let err = new Error('No available favorites!');
+                    err.status = 404;
+                    return next(err);
+                }
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                res.json(favorites);
+        } 
+        else {
+            let err = new Error("There\'s no favorite");
+            err.status = 404;
+            return next(err);
+        }
     }, (err) => next(err))
     .catch(err);
 })
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, 
     (req, res, next) => {
-        Favorites.findOne({ user: req.user._id})
+        Favorites.findOne({})
+        .populate('user')
+        .populate('dishes')
         .then((favorites) => {
+            let user;
             if (favorites) {
+                user = favorites.filter(favor => favor.user._id.toString() === 
+                req.user.id.toString())[0];
                 for (let i = 0; i < req.body.length; i++) {
                     if (favorites.dishes.indexOf(req.body[i]._id) === -1) {
                         favorites.dishes.push(req.body[i]._id);
@@ -63,7 +83,7 @@ favoriteRouter.route('/')
         else {
             res.statusCode = 200;
             res.setHeader('Content-Type', 'application/json')
-            res.json(favorite);
+            res.json(favorites);
         }
     },(err) => next(err))
     .catch(err)
@@ -90,7 +110,7 @@ favoriteRouter.route('/:dishId')
             const dish = favor.dishes.filter(dish => dish.id == req.params.id);
 
             if(dish) {
-                
+
             }
         }
     })
