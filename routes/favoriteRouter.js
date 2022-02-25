@@ -126,7 +126,7 @@ favoriteRouter.route('/:dishId')
             return next(err);
         }
     }, (err) => next(err))
-    .catch(err);
+    .catch((err) => next(err));
 })
 .post(cors.corsWithOptions, authenticate.verifyUser, 
     (req, res, next) => {
