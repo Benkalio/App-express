@@ -86,7 +86,7 @@ favoriteRouter.route('/')
             res.json(favorites);
         }
     },(err) => next(err))
-    .catch(err)
+    .catch((err) => next(err)); 
 })
 .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Favorites.findByIdAndRemove(req.params._id)
@@ -95,7 +95,7 @@ favoriteRouter.route('/')
         res.setHeader('Content-Type', 'application/json');
         res.json(resp);
     }, (err) => next(err))
-    .catch(err);
+    .catch((err) => next(err));
 });
 
 favoriteRouter.route('/:dishId')
